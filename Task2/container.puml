@@ -1,0 +1,115 @@
+@startuml "Контейнерная диаграмма To-Be для MVP"
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_WITH_LEGEND()
+
+title "Контейнерная диаграмма To-Be для MVP"
+
+Person(patient, "Пациент", "Клиент медицинского центра")
+Person(doctor, "Медицинский специалист", "Врач, проводящий приём")
+Person(reception, "Сотрудник ресепшена", "Ведёт запись пациентов")
+Person(cashier, "Кассир", "Принимает платежи")
+Person(accountant, "Бухгалтер", "Ведёт бухгалтерию")
+Person(warehouse, "Сотрудник склада", "Ведёт учёт ТМЦ")
+Person(admin, "Администратор системы", "Управляет доступами и настройками")
+
+System_Boundary(medicament_system, "Система «Медикаменте»") {
+    Container(web_portal, "Веб-портал", "React, Next.js", "Интерфейс для пациентов и сотрудников")
+    
+    Container(api_gateway, "API Gateway", "Kong, OAuth2", "Единая точка входа в API, аутентификация, авторизация")
+    
+    Container(patient_service, "Сервис пациентов", "Java, Spring Boot", "Управление данными пациентов, записью на приём")
+    
+    Container(medical_service, "Медицинский сервис", "Java, Spring Boot", "Управление медицинскими картами, анализами, назначениями")
+    
+    Container(payment_service, "Платёжный сервис", "Java, Spring Boot", "Обработка платежей, интеграция с ККМ")
+    
+    Container(notification_service, "Сервис уведомлений", "Node.js", "Отправка уведомлений пациентам и сотрудникам")
+    
+    Container(audit_service, "Сервис аудита", "Java, Spring Boot", "Логирование всех действий с конфиденциальными данными")
+    
+    Container(identity_service, "Сервис идентификации", "Keycloak", "Управление пользователями, ролями, аутентификацией и авторизацией")
+    
+    ContainerDb(patient_db, "База данных пациентов", "PostgreSQL + pgcrypto", "Хранение персональных данных пациентов")
+    
+    ContainerDb(medical_db, "База данных медицинских данных", "PostgreSQL + pgcrypto", "Хранение медицинских карт, результатов анализов")
+    
+    ContainerDb(payment_db, "База данных платежей", "PostgreSQL + pgcrypto", "Хранение данных о платежах")
+    
+    ContainerDb(audit_db, "База данных аудита", "PostgreSQL", "Хранение логов доступа к данным")
+    
+    Container(data_masking, "Сервис маскирования данных", "Python", "Обфускация и псевдонимизация данных для отображения")
+    
+    Container(integration_service, "Интеграционный сервис", "Java, Spring Integration", "Интеграция с внешними системами")
+}
+
+System_Ext(lab_system, "Система лаборатории", "Внешняя система для анализов")
+System_Ext(accounting_system, "1С Бухгалтерия", "Клиент-серверная версия")
+System_Ext(inventory_system, "1С Торговля и склад", "Клиент-серверная версия")
+
+' Связи пользователей с системой
+Rel(patient, web_portal, "Использует для записи на приём, просмотра своих данных", "HTTPS")
+Rel(doctor, web_portal, "Использует для работы с медицинскими картами", "HTTPS")
+Rel(reception, web_portal, "Использует для управления записями", "HTTPS")
+Rel(cashier, web_portal, "Использует для приёма платежей", "HTTPS")
+Rel(accountant, accounting_system, "Использует для ведения бухгалтерии", "HTTPS")
+Rel(warehouse, inventory_system, "Использует для учёта ТМЦ", "HTTPS")
+Rel(admin, identity_service, "Управляет пользователями и правами", "HTTPS")
+
+' Связи между компонентами
+Rel(web_portal, api_gateway, "Отправляет запросы", "HTTPS, JWT")
+Rel(api_gateway, patient_service, "Маршрутизирует запросы", "HTTPS, JWT")
+Rel(api_gateway, medical_service, "Маршрутизирует запросы", "HTTPS, JWT")
+Rel(api_gateway, payment_service, "Маршрутизирует запросы", "HTTPS, JWT")
+Rel(api_gateway, identity_service, "Проверяет токены", "HTTPS, OAuth2")
+
+Rel(patient_service, patient_db, "Читает/записывает данные пациентов", "TLS, шифрование")
+Rel(patient_service, notification_service, "Отправляет запросы на уведомления", "HTTPS")
+Rel(patient_service, audit_service, "Логирует действия с данными", "HTTPS")
+Rel(patient_service, data_masking, "Запрашивает маскирование данных", "HTTPS")
+
+Rel(medical_service, medical_db, "Читает/записывает медицинские данные", "TLS, шифрование")
+Rel(medical_service, integration_service, "Запрашивает данные анализов", "HTTPS")
+Rel(medical_service, audit_service, "Логирует действия с данными", "HTTPS")
+Rel(medical_service, data_masking, "Запрашивает маскирование данных", "HTTPS")
+
+Rel(payment_service, payment_db, "Читает/записывает данные о платежах", "TLS, шифрование")
+Rel(payment_service, accounting_system, "Передаёт данные о платежах", "HTTPS, шифрование")
+Rel(payment_service, audit_service, "Логирует действия с данными", "HTTPS")
+
+Rel(notification_service, patient_db, "Читает контактные данные", "TLS, шифрование")
+Rel(integration_service, lab_system, "Обменивается данными", "HTTPS, mTLS")
+Rel(integration_service, medical_db, "Сохраняет результаты анализов", "TLS, шифрование")
+
+Rel(audit_service, audit_db, "Записывает логи аудита", "TLS")
+Rel(identity_service, patient_db, "Проверяет учётные данные", "TLS, шифрование")
+
+Rel(accounting_system, inventory_system, "Обменивается данными", "TLS, шифрование")
+
+note as N1
+  <b>Хранение данных:</b>
+  - PII_Patient: Шифрование на уровне БД (pgcrypto), разделение по схемам
+  - MedicalSecret_Patient: Отдельная БД с шифрованием, строгий RBAC
+  - Financial_Patient: Шифрование в БД, доступ только для авторизованных ролей
+  - Все БД имеют резервное копирование с шифрованием
+endnote
+
+note as N2
+  <b>Периоды и условия уничтожения данных:</b>
+'   https://www.consultant.ru/document/cons_doc_LAW_191564/0f01b75e3459758b2ca11ba49879b74e7af439cc/
+'   https://www.consultant.ru/legalnews/23080/
+  - Медицинские данные: хранение 50 лет согласно законодательству (в ит системе)
+  - Удаление по запросу пациента
+  - Автоматическая анонимизация неактивных пациентов
+endnote
+
+note as N3
+  <b>Защита данных при хранении и передаче:</b>
+  - Хранение: шифрование в БД (pgcrypto), RBAC/ABAC
+  - Передача: TLS 1.3, JWT с коротким сроком жизни
+  - Аудит всех операций с конфиденциальными данными
+  - mTLS для интеграций с внешними системами
+  - Многофакторная аутентификация для сотрудников
+endnote
+
+@enduml
