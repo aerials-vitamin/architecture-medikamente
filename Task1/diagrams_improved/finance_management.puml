@@ -1,0 +1,68 @@
+@startuml финансовые операции
+skinparam backgroundColor white
+skinparam defaultTextAlignment center
+
+title "Финансовые операции"
+
+!define ENTITY entity
+!define PROCESS process
+!define DATASTORE database
+!define DATAFLOW arrow
+
+!define PERSON_BG #FFBD9D
+!define SYSTEM_BG #C9E7FF
+!define STORE_BG #FFFACD
+
+skinparam entity {
+  BackgroundColor PERSON_BG
+  BorderColor #FF7400
+}
+
+skinparam process {
+  BackgroundColor SYSTEM_BG
+  BorderColor #0078D7
+}
+
+skinparam database {
+  BackgroundColor STORE_BG
+  BorderColor #FFD700
+}
+
+' Entities
+entity "Пациент" as patient
+entity "Кассир" as cashier
+entity "Бухгалтер" as accountant
+
+' Processes
+process "1.0\nВыставление\nсчета" as process1
+process "2.0\nПрием\nоплаты" as process2
+process "3.0\nФиксация\nв Excel" as process3
+process "4.0\nОбработка\nв 1С" as process4
+process "5.0\nФормирование\nналоговой отчетности" as process5
+process "6.0\nРасчет\nзарплаты" as process6
+
+' Data stores
+database "Журнал платежей\n(Postgres\nс шифрованием)" as payments_excel
+database "1С Бухгалтерия\n(клиент-сервер)" as accounting
+database "ККМ" as cashregister
+
+' Data flows
+patient --> process1 : "Запрос\nна услугу"
+process1 --> patient : "Сумма\nк оплате"
+patient --> process2 : "Оплата услуги\n(наличные/карта)"
+process2 --> cashregister : "Фиксация\nплатежа в ККМ"
+cashregister --> process2 : "Чек"
+process2 --> process3 : "Данные о платеже\n(сумма, ФИО пациента,\nуслуга, дата)"
+process3 --> payments_excel : "Запись в журнал\n(шифрование, RBAC)"
+cashier --> process3 : "Ввод данных\nв Excel"
+process2 --> process4 : "Передача данных\nплатежа в 1С"
+cashier --> process4 : "Ввод данных\nв 1С"
+process4 --> accounting : "Бухгалтерские\nпроводки\n(защищенный канал)"
+accounting --> process5 : "Финансовые\nданные компании"
+accountant --> process5 : "Формирование\nотчетов"
+accounting --> process6 : "Данные по\nотработанному времени"
+accountant --> process6 : "Расчет\nвыплат"
+process6 --> accountant : "Зарплатные\nведомости"
+process2 --> patient : "Выдача чека"
+
+@enduml
