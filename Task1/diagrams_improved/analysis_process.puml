@@ -1,0 +1,65 @@
+@startuml
+skinparam backgroundColor white
+skinparam defaultTextAlignment center
+
+!define ENTITY entity
+!define PROCESS process
+!define DATASTORE database
+!define DATAFLOW arrow
+
+!define PERSON_BG #FFBD9D
+!define SYSTEM_BG #C9E7FF
+!define STORE_BG #FFFACD
+
+skinparam entity {
+  BackgroundColor PERSON_BG
+  BorderColor #FF7400
+}
+
+skinparam process {
+  BackgroundColor SYSTEM_BG
+  BorderColor #0078D7
+}
+
+skinparam database {
+  BackgroundColor STORE_BG
+  BorderColor #FFD700
+}
+
+' Entities
+entity "Пациент" as patient
+entity "Медицинский специалист" as doctor
+entity "Лаборатория анализов\n(внешняя)" as lab
+entity "Сотрудник ресепшена" as reception
+
+' Processes
+process "1.0\nНазначение\nанализов" as process1
+process "2.0\nНаправление\nв лабораторию" as process2
+process "3.0\nПолучение\nрезультатов" as process3
+process "4.0\nСканирование\nдокументов" as process4
+process "5.0\nСохранение\nв медкарту" as process5
+process "6.0\nИнтерпретация\nрезультатов" as process6
+
+' Data stores
+database "Журнал анализов\n(Excel файл)" as tests_journal
+database "Медицинские карты\n(Excel и сканы)" as med_records
+database "Общий диск\nкомпании" as shared_drive
+
+' Data flows
+doctor --> process1 : "Назначение\nвида анализов"
+process1 --> patient : "Направление\nна анализы"
+patient --> process2 : "Личные данные,\nвид анализа"
+process2 --> lab : "Заявка\nна анализ"
+lab --> process3 : "Результаты\nанализов"
+process3 --> reception : "Получение\nбумажных результатов"
+reception --> process4 : "Подготовка\nк сканированию"
+process4 --> process5 : "Сканированные\nрезультаты"
+process1 --> tests_journal : "Запись о\nназначении анализа"
+process3 --> tests_journal : "Отметка о\nполучении результатов"
+process5 --> med_records : "Сохранение\nрезультатов в карту\nпациента"
+med_records --> shared_drive : "Размещение\nна общем диске"
+med_records --> process6 : "Доступ к\nрезультатам"
+doctor --> process6 : "Анализ\nрезультатов"
+process6 --> patient : "Заключение\nи рекомендации"
+
+@enduml

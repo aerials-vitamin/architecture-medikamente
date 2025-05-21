@@ -1,0 +1,57 @@
+@startuml Запись пациента
+skinparam backgroundColor white
+skinparam defaultTextAlignment center
+
+title "DFD – Запись пациента"
+
+!define ENTITY entity
+!define PROCESS process
+!define DATASTORE database
+!define DATAFLOW arrow
+
+!define PERSON_BG #FFBD9D
+!define SYSTEM_BG #C9E7FF
+!define STORE_BG #FFFACD
+
+skinparam entity {
+  BackgroundColor PERSON_BG
+  BorderColor #FF7400
+}
+
+skinparam process {
+  BackgroundColor SYSTEM_BG
+  BorderColor #0078D7
+}
+
+skinparam database {
+  BackgroundColor STORE_BG
+  BorderColor #FFD700
+}
+
+' Entities
+entity "Пациент" as patient
+entity "Сотрудник ресепшена" as reception
+
+' Processes
+process "1.0\nПрием\nзаявки" as process1
+process "2.0\nРегистрация\nпациента" as process2
+process "3.0\nПланирование\nрасписания" as process3
+process "4.0\nОповещение\nмедицинского специалиста" as process4
+
+' Data stores
+database "Журнал записей\n(Excel файл)" as journal
+database "База персональных\nданных пациентов\n(Excel файл)" as patient_db
+
+' Data flows
+patient --> process1 : "ФИО, телефон, \nпочта, дата рождения"
+process1 --> reception : "Запрос на запись"
+reception --> process2 : "Ввод персональных\nданных пациента"
+process2 --> patient_db : "Сохранение ПД\n(ФИО, дата рождения,\nтелефон, эл. почта,\nадрес, место работы,\nхронические заболевания)"
+process2 --> process3 : "Данные для\nпланирования приема"
+reception --> process3 : "Выбор даты/времени\nи специалиста"
+process3 --> journal : "Запись в журнал\nприемов"
+journal --> process4 : "Информация\nо приеме"
+process4 --> reception : "Подтверждение\nзаписи"
+reception --> patient : "Подтверждение\nзаписи на прием"
+
+@enduml

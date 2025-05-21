@@ -1,0 +1,62 @@
+@startuml patient_card_process
+skinparam backgroundColor white
+skinparam defaultTextAlignment center
+
+title "Обработка карты пациента"
+
+!define ENTITY entity
+!define PROCESS process
+!define DATASTORE database
+!define DATAFLOW arrow
+
+!define PERSON_BG #FFBD9D
+!define SYSTEM_BG #C9E7FF
+!define STORE_BG #FFFACD
+
+skinparam entity {
+  BackgroundColor PERSON_BG
+  BorderColor #FF7400
+}
+
+skinparam process {
+  BackgroundColor SYSTEM_BG
+  BorderColor #0078D7
+}
+
+skinparam database {
+  BackgroundColor STORE_BG
+  BorderColor #FFD700
+}
+
+' Entities
+entity "Пациент" as patient
+entity "Медицинский специалист" as doctor
+entity "Сотрудник IT-отдела" as it_staff
+
+' Processes
+process "1.0\nПрием\nпациента" as process1
+process "2.0\nДиагностика\nи заключение" as process2
+process "3.0\nСканирование\nдокументов" as process3
+process "4.0\nСохранение\nмедкарты" as process4
+process "5.0\nРезервное\nкопирование" as process5
+
+' Data stores
+database "Медицинские карты\n(Postgres\nс шифрованием)" as med_records
+database "Общий диск\nкомпании" as shared_drive
+database "Резервные\nкопии" as backup
+
+' Data flows
+patient --> process1 : "Жалобы и\nсимптомы"
+process1 --> doctor : "Информация\nо пациенте"
+doctor --> process2 : "Проведение\nосмотра"
+process2 --> process3 : "Результаты\nдиагностики"
+process3 --> process4 : "Сканированные\nдокументы и записи"
+process4 --> med_records : "Сохранение\nдиагноза, заключения,\nрекомендаций"
+med_records --> shared_drive : "Размещение на\nобщем диске"
+shared_drive --> it_staff : "Доступ ко всем\nмедкартам"
+it_staff --> process5 : "Регулярное\nрезервирование"
+process5 --> backup : "Копии\nмедкарт"
+med_records --> doctor : "Доступ к истории\nболезни пациента"
+process2 --> patient : "Рекомендации\nи рецепты"
+
+@enduml

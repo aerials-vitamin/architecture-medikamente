@@ -1,0 +1,67 @@
+@startuml
+skinparam backgroundColor white
+skinparam defaultTextAlignment center
+
+!define ENTITY entity
+!define PROCESS process
+!define DATASTORE database
+!define DATAFLOW arrow
+
+!define PERSON_BG #FFBD9D
+!define SYSTEM_BG #C9E7FF
+!define STORE_BG #FFFACD
+
+skinparam entity {
+  BackgroundColor PERSON_BG
+  BorderColor #FF7400
+}
+
+skinparam process {
+  BackgroundColor SYSTEM_BG
+  BorderColor #0078D7
+}
+
+skinparam database {
+  BackgroundColor STORE_BG
+  BorderColor #FFD700
+}
+
+' Entities
+entity "Поставщик" as supplier
+entity "Сотрудник склада" as storekeeper
+entity "Медицинский специалист" as doctor
+entity "Бухгалтер" as accountant
+
+' Processes
+process "1.0\nЗаказ\nТМЦ" as process1
+process "2.0\nПрием\nТМЦ" as process2
+process "3.0\nУчет в\n1С Торговля" as process3
+process "4.0\nВыдача\nТМЦ" as process4
+process "5.0\nИнтеграция с\n1С Бухгалтерия" as process5
+process "6.0\nИнвентаризация" as process6
+
+' Data stores
+database "1С Торговля\nи склад" as trade_db
+database "1С Бухгалтерия" as accounting
+database "Журнал заявок\n(Excel файл)" as requests
+
+' Data flows
+doctor --> process1 : "Заявка на\nматериалы/оборудование"
+process1 --> requests : "Фиксация\nзаявки"
+storekeeper --> process1 : "Обработка\nзаявки"
+process1 --> supplier : "Заказ\nТМЦ"
+supplier --> process2 : "Поставка\nТМЦ"
+process2 --> storekeeper : "Проверка\nи приемка"
+storekeeper --> process3 : "Внесение\nданных о ТМЦ"
+process3 --> trade_db : "Оприходование\nТМЦ"
+doctor --> process4 : "Запрос на\nвыдачу ТМЦ"
+process4 --> storekeeper : "Обработка\nзапроса"
+storekeeper --> process4 : "Выдача\nТМЦ"
+process4 --> trade_db : "Списание\nТМЦ"
+trade_db --> process5 : "Данные о\nдвижении ТМЦ"
+process5 --> accounting : "Финансовый\nучет ТМЦ"
+storekeeper --> process6 : "Проведение\nинвентаризации"
+process6 --> trade_db : "Корректировка\nостатков"
+accounting --> accountant : "Финансовые\nотчеты по ТМЦ"
+
+@enduml
