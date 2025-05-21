@@ -1,6 +1,8 @@
-@startuml
+@startuml анализы
 skinparam backgroundColor white
 skinparam defaultTextAlignment center
+
+title "Анализы"
 
 !define ENTITY entity
 !define PROCESS process

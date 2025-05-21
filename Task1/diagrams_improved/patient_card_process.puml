@@ -42,8 +42,8 @@ process "5.0\nРезервное\nкопирование" as process5
 
 ' Data stores
 database "Медицинские карты\n(Postgres\nс шифрованием)" as med_records
-database "Общий диск\nкомпании" as shared_drive
-database "Резервные\nкопии" as backup
+database "Защищенное\nхранилище\nс RBAC" as shared_drive
+database "Шифрованные\nрезервные\nкопии" as backup
 
 ' Data flows
 patient --> process1 : "Жалобы и\nсимптомы"
@@ -51,11 +51,11 @@ process1 --> doctor : "Информация\nо пациенте"
 doctor --> process2 : "Проведение\nосмотра"
 process2 --> process3 : "Результаты\nдиагностики"
 process3 --> process4 : "Сканированные\nдокументы и записи"
-process4 --> med_records : "Сохранение\nдиагноза, заключения,\nрекомендаций"
-med_records --> shared_drive : "Размещение на\nобщем диске"
-shared_drive --> it_staff : "Доступ ко всем\nмедкартам"
+process4 --> med_records : "Сохранение диагноза,\nзаключения, рекомендаций\n(шифрование, RBAC)"
+med_records --> shared_drive : "Размещение в\nзащищенном хранилище\n(аудит доступа)"
+shared_drive --> it_staff : "Ограниченный доступ\nпо RBAC/ABAC"
 it_staff --> process5 : "Регулярное\nрезервирование"
-process5 --> backup : "Копии\nмедкарт"
+process5 --> backup : "Шифрованные\nкопии медкарт"
 med_records --> doctor : "Доступ к истории\nболезни пациента"
 process2 --> patient : "Рекомендации\nи рецепты"
 

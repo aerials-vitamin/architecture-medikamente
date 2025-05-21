@@ -1,6 +1,8 @@
-@startuml
+@startuml ТМЦ
 skinparam backgroundColor white
 skinparam defaultTextAlignment center
+
+title "ТМЦ"
 
 !define ENTITY entity
 !define PROCESS process
@@ -41,19 +43,19 @@ process "5.0\nИнтеграция с\n1С Бухгалтерия" as process5
 process "6.0\nИнвентаризация" as process6
 
 ' Data stores
-database "1С Торговля\nи склад" as trade_db
-database "1С Бухгалтерия" as accounting
-database "Журнал заявок\n(Excel файл)" as requests
+database "1С Торговля\nи склад\n(клиент-сервер)" as trade_db
+database "1С Бухгалтерия\n(клиент-сервер)" as accounting
+database "Журнал заявок\n(Postgres)" as requests
 
 ' Data flows
 doctor --> process1 : "Заявка на\nматериалы/оборудование"
-process1 --> requests : "Фиксация\nзаявки"
+process1 --> requests : "Фиксация заявки\n(RBAC, аудит)"
 storekeeper --> process1 : "Обработка\nзаявки"
 process1 --> supplier : "Заказ\nТМЦ"
 supplier --> process2 : "Поставка\nТМЦ"
 process2 --> storekeeper : "Проверка\nи приемка"
 storekeeper --> process3 : "Внесение\nданных о ТМЦ"
-process3 --> trade_db : "Оприходование\nТМЦ"
+process3 --> trade_db : "Оприходование ТМЦ\n(защищенный канал)"
 doctor --> process4 : "Запрос на\nвыдачу ТМЦ"
 process4 --> storekeeper : "Обработка\nзапроса"
 storekeeper --> process4 : "Выдача\nТМЦ"

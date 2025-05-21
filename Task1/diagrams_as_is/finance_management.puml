@@ -1,6 +1,8 @@
-@startuml
+@startuml финансовые операции
 skinparam backgroundColor white
 skinparam defaultTextAlignment center
+
+title "Финансовые операции"
 
 !define ENTITY entity
 !define PROCESS process

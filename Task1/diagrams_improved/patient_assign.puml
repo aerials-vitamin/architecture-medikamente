@@ -39,11 +39,11 @@ process "3.0\nПланирование\nрасписания" as process3
 process "4.0\nОповещение\nмедицинского специалиста" as process4
 
 ' Data stores
-database "БД записей и графики\n(Postgres)" as journal
+database "Журнал записей\n(Postgres)" as journal
 database "База персональных\nданных пациентов\n(Postgres\nс шифрованием)" as patient_db
 
 ' Data flows
-patient --> process1 : "ФИО, телефон, \nпочта, дата рождения,\nдоп. данные с\nобоснованием"
+patient --> process1 : "ФИО, телефон, \nпочта, дата рождения,\nдоп. данные только\nпри необходимости"
 process1 --> reception : "Запрос на запись"
 reception --> process2 : "Ввод персональных\nданных пациента"
 process2 --> patient_db : "Сохранение ПД\n(ФИО, дата рождения,\nтелефон, эл. почта,\nадрес, место работы,\nхронические заболевания)\nTLS, RBAC"

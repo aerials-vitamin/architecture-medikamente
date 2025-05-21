@@ -1,6 +1,8 @@
-@startuml
+@startuml анализы
 skinparam backgroundColor white
 skinparam defaultTextAlignment center
+
+title "Анализы"
 
 !define ENTITY entity
 !define PROCESS process
@@ -41,23 +43,23 @@ process "5.0\nСохранение\nв медкарту" as process5
 process "6.0\nИнтерпретация\nрезультатов" as process6
 
 ' Data stores
-database "Журнал анализов\n(Excel файл)" as tests_journal
-database "Медицинские карты\n(Excel и сканы)" as med_records
-database "Общий диск\nкомпании" as shared_drive
+database "Журнал анализов\n(Postgres)" as tests_journal
+database "Медицинские карты\n(Postgres\nс шифрованием)" as med_records
+database "Защищенное\nхранилище\nс RBAC" as shared_drive
 
 ' Data flows
 doctor --> process1 : "Назначение\nвида анализов"
 process1 --> patient : "Направление\nна анализы"
 patient --> process2 : "Личные данные,\nвид анализа"
-process2 --> lab : "Заявка\nна анализ"
+process2 --> lab : "Заявка на анализ\n(шифрованный канал,\nаутентификация)"
 lab --> process3 : "Результаты\nанализов"
 process3 --> reception : "Получение\nбумажных результатов"
 reception --> process4 : "Подготовка\nк сканированию"
 process4 --> process5 : "Сканированные\nрезультаты"
 process1 --> tests_journal : "Запись о\nназначении анализа"
 process3 --> tests_journal : "Отметка о\nполучении результатов"
-process5 --> med_records : "Сохранение\nрезультатов в карту\nпациента"
-med_records --> shared_drive : "Размещение\nна общем диске"
+process5 --> med_records : "Сохранение результатов\nв карту пациента\n(шифрование, RBAC)"
+med_records --> shared_drive : "Размещение в\nзащищенном хранилище\n(аудит доступа)"
 med_records --> process6 : "Доступ к\nрезультатам"
 doctor --> process6 : "Анализ\nрезультатов"
 process6 --> patient : "Заключение\nи рекомендации"
